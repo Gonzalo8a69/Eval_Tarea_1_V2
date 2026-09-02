@@ -159,7 +159,7 @@ def mostrar_panel_ipr(qo, qb, qmax, pwf, q_arr, p_arr):
     _, col_graf, _ = st.columns([1, 3, 1])
     with col_graf:
         fig, ax = plt.subplots(figsize=(6, 3.5))
-        fig.patch.set_facecolor('#F4EFF5') /* Fondo Lila para emparejar */
+        fig.patch.set_facecolor('#F4EFF5') # Fondo Lila para emparejar
         ax.set_facecolor('#FFFFFF')
         ax.plot(q_arr, p_arr, color='#4A3554', linewidth=2.5, label='Curva IPR')
         ax.scatter(qo, pwf, color='#D29B7F', s=120, zorder=5, label='Punto Operativo')
