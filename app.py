@@ -14,13 +14,19 @@ aplicar_estilos()
 # Navegación estricta
 menu = st.sidebar.radio("Navegación Principal", ["Home", "Ejercicios"])
 
+
 if menu == "Home":
-    st.title("Plataforma de Analítica para Oil & Gas")
-    st.markdown("### Desarrollado por: JOSE GONZALO OCHOA PAZ")
-    st.markdown("<p class='metadato'>Programa: Bootcamp Data Analytics for Oil & Gas</p>", unsafe_allow_html=True)
-    st.write("---")
-    st.write("Esta aplicación web profesional está diseñada para ejecutar cálculos críticos de ingeniería petrolera. A través de un enfoque modular, resuelve escenarios técnicos en las áreas de Producción, Perforación y Reservorios, integrando visualizaciones dinámicas para la toma de decisiones.")
+    # Títulos centrados inyectados con HTML seguro
+    st.markdown("<h1>Plataforma de Analítica para Oil & Gas</h1>", unsafe_allow_html=True)
+    st.markdown("<h3>Desarrollado por: JOSE GONZALO OCHOA PAZ</h3>", unsafe_allow_html=True)
+    st.markdown("<span class='metadato'>Programa: Bootcamp Data Analytics for Oil & Gas</span>", unsafe_allow_html=True)
+    
+    # Encapsulación de la información técnica en la nueva tarjeta
+    texto_tecnico = "Esta aplicación web profesional está diseñada para ejecutar cálculos críticos de ingeniería petrolera. A través de un enfoque modular, resuelve escenarios técnicos en las áreas de Producción, Perforación y Reservorios, integrando visualizaciones dinámicas para la toma de decisiones ágil y fundamentada."
+    renderizar_tarjeta_info(texto_tecnico)
+    
     inyectar_js_animacion()
+
 
 elif menu == "Ejercicios":
     tab1, tab2, tab3 = st.tabs(["Producción (IPR)", "Perforación (Presiones)", "Reservorios (POES)"])
