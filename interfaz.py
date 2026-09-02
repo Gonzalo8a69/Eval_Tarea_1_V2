@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 
 def aplicar_estilos():
-    """Inyecta CSS global para tipografía, colores, tarjetas y personalización de navegación nativa."""
+    """Inyecta CSS global garantizando que la navegación principal destaque."""
     css = """
     <style>
         /* --- FONDO PRINCIPAL --- */
@@ -16,20 +16,24 @@ def aplicar_estilos():
         .metadato-home { color: #64748B !important; font-size: 1rem !important; text-transform: uppercase; text-align: center; display: block; margin-bottom: 2.5rem; }
         .metadato { color: #64748B !important; font-size: 0.875rem !important; text-transform: uppercase; }
         
-        /* --- MEJORA VISUAL: NAVEGACIÓN Y TABS --- */
-        /* 1. Tamaño de letra para el menú Radio en el Sidebar */
-        [data-testid="stSidebar"] .stRadio label p {
-            font-size: 1.25rem !important; /* ~20px */
+        /* --- REFUERZO VISUAL: NAVEGACIÓN Y TABS --- */
+        /* 1. Sidebar (Home y Ejercicios) - Forzando tamaño en todas las capas */
+        [data-testid="stSidebar"] .stRadio label p,
+        [data-testid="stSidebar"] .stRadio label div {
+            font-size: 1.5rem !important; /* ~24px */
+            font-weight: 600 !important;
             color: #1A365D !important;
-            padding-top: 5px;
-            padding-bottom: 5px;
+            padding-top: 8px;
+            padding-bottom: 8px;
         }
         
-        /* 2. Tamaño de letra para los Tabs (Producción, Perforación, Reservorios) */
-        button[data-baseweb="tab"] div[data-testid="stMarkdownContainer"] p {
-            font-size: 1.25rem !important; /* ~20px */
+        /* 2. Tabs (Producción, Perforación, Reservorios) - Selectores profundos */
+        [data-testid="stTabs"] button[data-baseweb="tab"] p,
+        [data-testid="stTabs"] button[data-baseweb="tab"] div,
+        [data-testid="stTabs"] button[data-baseweb="tab"] span {
+            font-size: 1.5rem !important; /* ~24px */
             font-weight: bold !important;
-            color: #1A365D;
+            color: #1A365D !important;
         }
         
         /* --- TARJETAS PERSONALIZADAS --- */
@@ -68,7 +72,7 @@ def renderizar_tarjeta_info(texto):
     st.markdown(html, unsafe_allow_html=True)
 
 def inyectar_js_animacion():
-    """Inyecta script JS para el efecto visual de entrada, cumpliendo con la interacción requerida."""
+    """Inyecta script JS para el efecto visual de entrada."""
     js = """<script>
         document.addEventListener("DOMContentLoaded", function() {
             const container = document.querySelector('.stApp');
@@ -84,7 +88,7 @@ def inyectar_js_animacion():
 # --- COMPONENTES GRÁFICOS MODULARES ---
 
 def mostrar_panel_ipr(qo, qb, qmax, pwf, q_arr, p_arr):
-    """Construye el panel completo de resultados y gráficos para Producción."""
+    """Construye el panel de resultados y gráficos para Producción."""
     c1, c2, c3 = st.columns(3)
     with c1: renderizar_tarjeta("Caudal Actual", qo, "STB/d")
     with c2: renderizar_tarjeta("Caudal a Burbuja", qb, "STB/d")
@@ -104,7 +108,7 @@ def mostrar_panel_ipr(qo, qb, qmax, pwf, q_arr, p_arr):
         st.pyplot(fig, use_container_width=True)
 
 def mostrar_panel_perforacion(gh, ph, dp, tvd, pform):
-    """Construye el panel completo de resultados y gráficos para Perforación."""
+    """Construye el panel de resultados y gráficos para Perforación."""
     c1, c2, c3 = st.columns(3)
     with c1: renderizar_tarjeta("Gradiente", gh, "psi/ft")
     with c2: renderizar_tarjeta("P. Hidrostática", ph, "psi")
@@ -125,7 +129,7 @@ def mostrar_panel_perforacion(gh, ph, dp, tvd, pform):
         st.pyplot(fig, use_container_width=True)
 
 def mostrar_panel_reservorios(hn, p_mmstb, r_mmstb):
-    """Construye el panel completo de resultados y gráficos para Reservorios."""
+    """Construye el panel de resultados y gráficos para Reservorios."""
     c1, c2, c3 = st.columns(3)
     with c1: renderizar_tarjeta("Espesor Neto", hn, "ft")
     with c2: renderizar_tarjeta("POES", p_mmstb, "MMSTB")
