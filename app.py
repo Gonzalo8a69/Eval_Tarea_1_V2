@@ -1,20 +1,28 @@
 import streamlit as st
+import matplotlib.pyplot as plt
 
-# Módulos de lógica y procesamiento
+# 1. Importación del módulo de interfaz (Sintaxis corregida para evitar SyntaxError)
+from interfaz import (
+    aplicar_estilos,
+    renderizar_tarjeta_info,
+    inyectar_js_animacion,
+    mostrar_panel_ipr,
+    mostrar_panel_perforacion,
+    mostrar_panel_reservorios
+)
+
+# 2. Importación de los módulos de lógica y procesamiento
 from modelos import ReservorioSubsaturado, DatosPozo, PropiedadesPetrofisicas
 from validaciones import validar_ipr, validar_perforacion, validar_poes
 from calculos import calcular_ipr, calcular_hidrostatica, calcular_volumetria
 
-# Módulo de interfaz gráfica (Frontend)
-from interfaz import (
-    aplicar_estilos, renderizar_tarjeta_info, inyectar_js_animacion,
-    mostrar_panel_ipr, mostrar_panel_perforacion, mostrar_panel_reservorios
-)
-
-# Configuración Inicial
+# Configuración Base de la Aplicación
 st.set_page_config(page_title="Data Analytics Oil & Gas", layout="wide")
+
+# Inyección de estilos (Paleta Lila Cálido y Efectos JS)
 aplicar_estilos()
 
+# Estructura obligatoria de navegación
 menu = st.sidebar.radio("Navegación", ["Home", "Ejercicios"])
 
 if menu == "Home":
@@ -32,9 +40,10 @@ if menu == "Home":
     inyectar_js_animacion()
 
 elif menu == "Ejercicios":
+    # Tabs obligatorios para los módulos técnicos
     tab1, tab2, tab3 = st.tabs(["Producción", "Perforación", "Reservorios"])
     
-    # --- TAB 1: PRODUCCIÓN ---
+    # --- TAB 1: PRODUCCIÓN (IPR) ---
     with tab1:
         st.header("Análisis de IPR Compuesta")
         c1, c2 = st.columns(2)
