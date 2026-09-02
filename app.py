@@ -1,28 +1,27 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 
-# Importación de la estructura modular interna
+# Módulos de lógica y procesamiento
 from modelos import ReservorioSubsaturado, DatosPozo, PropiedadesPetrofisicas
 from validaciones import validar_ipr, validar_perforacion, validar_poes
 from calculos import calcular_ipr, calcular_hidrostatica, calcular_volumetria
 
-# IMPORTACIÓN CORREGIDA: Se incluyó renderizar_tarjeta_info
-from interfaz import aplicar_estilos, renderizar_tarjeta, renderizar_tarjeta_info, inyectar_js_animacion
+# Módulo de interfaz gráfica (Frontend)
+from interfaz import (
+    aplicar_estilos, renderizar_tarjeta_info, inyectar_js_animacion,
+    mostrar_panel_ipr, mostrar_panel_perforacion, mostrar_panel_reservorios
+)
 
-# Configuración base de la aplicación
+# Configuración Inicial
 st.set_page_config(page_title="Data Analytics Oil & Gas", layout="wide")
 aplicar_estilos()
 
-# Estructura obligatoria de navegación
 menu = st.sidebar.radio("Navegación", ["Home", "Ejercicios"])
 
 if menu == "Home":
-    # Uso de HTML seguro para centrar los títulos e inyectar el CSS configurado
     st.markdown("<h1>Plataforma de Analítica para Oil & Gas</h1>", unsafe_allow_html=True)
     st.markdown("<h3>Desarrollado por: JOSE GONZALO OCHOA PAZ</h3>", unsafe_allow_html=True)
     st.markdown("<span class='metadato-home'>Programa: Bootcamp Data Analytics for Oil & Gas</span>", unsafe_allow_html=True)
     
-    # Texto descriptivo encapsulado en la nueva tarjeta visual
     texto_proposito = (
         "Esta aplicación web profesional está diseñada para ejecutar cálculos críticos de ingeniería petrolera. "
         "A través de un enfoque modular, resuelve escenarios técnicos en las áreas de Producción, Perforación "
@@ -30,15 +29,12 @@ if menu == "Home":
         "ágil y fundamentada en operaciones de campo."
     )
     renderizar_tarjeta_info(texto_proposito)
-    
-    # Interacción JS requerida
     inyectar_js_animacion()
 
 elif menu == "Ejercicios":
-    # Tabs obligatorios para los módulos técnicos
     tab1, tab2, tab3 = st.tabs(["Producción", "Perforación", "Reservorios"])
     
-    # ---------------- TAB 1: PRODUCCIÓN (IPR) ----------------
+    # --- TAB 1: PRODUCCIÓN ---
     with tab1:
         st.header("Análisis de IPR Compuesta")
         c1, c2 = st.columns(2)
@@ -54,26 +50,11 @@ elif menu == "Ejercicios":
                 qo, qb, qmax, estado, p_arr, q_arr = calcular_ipr(res, pwf)
                 
                 st.info(f"**Condición de Flujo:** {estado}")
-                col1, col2, col3 = st.columns(3)
-                with col1: renderizar_tarjeta("Caudal Actual", qo, "STB/d")
-                with col2: renderizar_tarjeta("Caudal a Burbuja", qb, "STB/d")
-                with col3: renderizar_tarjeta("Caudal Máximo", qmax, "STB/d")
-                
-                # Gráfico de Curva IPR
-                fig, ax = plt.subplots(figsize=(7, 4))
-                fig.patch.set_facecolor('#F3EFE6') 
-                ax.set_facecolor('#FFFFFF')
-                ax.plot(q_arr, p_arr, color='#1A365D', linewidth=2.5, label='Curva IPR')
-                ax.scatter(qo, pwf, color='#C5A880', s=120, zorder=5, label='Punto Operativo')
-                ax.set_xlabel('Caudal (STB/d)', fontweight='bold', color='#1A365D')
-                ax.set_ylabel('Pwf (psi)', fontweight='bold', color='#1A365D')
-                ax.grid(True, linestyle='--', alpha=0.5)
-                ax.legend()
-                st.pyplot(fig)
+                mostrar_panel_ipr(qo, qb, qmax, pwf, q_arr, p_arr)
             else:
                 st.error(msg)
                 
-    # ---------------- TAB 2: PERFORACIÓN ----------------
+    # --- TAB 2: PERFORACIÓN ---
     with tab2:
         st.header("Perfil de Presión Hidrostática")
         c1, c2 = st.columns(2)
@@ -89,27 +70,11 @@ elif menu == "Ejercicios":
                 gh, ph, dp, cond = calcular_hidrostatica(pozo)
                 
                 st.info(f"**Condición Operativa:** {cond}")
-                col1, col2, col3 = st.columns(3)
-                with col1: renderizar_tarjeta("Gradiente", gh, "psi/ft")
-                with col2: renderizar_tarjeta("P. Hidrostática", ph, "psi")
-                with col3: renderizar_tarjeta("Diferencial (\u0394P)", dp, "psi")
-                
-                # Gráfico Hidrostático
-                fig, ax = plt.subplots(figsize=(4, 6))
-                fig.patch.set_facecolor('#F3EFE6')
-                ax.set_facecolor('#FFFFFF')
-                ax.plot([0, ph], [0, tvd], color='#1A365D', linewidth=2.5, label='P. Hidrostática')
-                ax.scatter(pform, tvd, color='#C5A880', s=100, label='P. Formación')
-                ax.invert_yaxis()
-                ax.set_xlabel('Presión (psi)', fontweight='bold', color='#1A365D')
-                ax.set_ylabel('Profundidad TVD (ft)', fontweight='bold', color='#1A365D')
-                ax.grid(True, linestyle='--', alpha=0.5)
-                ax.legend()
-                st.pyplot(fig)
+                mostrar_panel_perforacion(gh, ph, dp, tvd, pform)
             else:
                 st.error(msg)
                 
-    # ---------------- TAB 3: RESERVORIOS (POES) ----------------
+    # --- TAB 3: RESERVORIOS ---
     with tab3:
         st.header("Estimación Volumétrica")
         c1, c2, c3 = st.columns(3)
@@ -127,17 +92,6 @@ elif menu == "Ejercicios":
                 prop = PropiedadesPetrofisicas(area, h, ntg, poro, swi, boi, fr)
                 hn, p_stb, p_mmstb, r_stb, r_mmstb = calcular_volumetria(prop)
                 
-                col1, col2, col3 = st.columns(3)
-                with col1: renderizar_tarjeta("Espesor Neto", hn, "ft")
-                with col2: renderizar_tarjeta("POES", p_mmstb, "MMSTB")
-                with col3: renderizar_tarjeta("Reservas Rec.", r_mmstb, "MMSTB")
-                
-                # Gráfico Comparativo
-                fig, ax = plt.subplots(figsize=(6, 4))
-                fig.patch.set_facecolor('#F3EFE6')
-                ax.set_facecolor('#FFFFFF')
-                ax.bar(['POES Original', 'Recuperable'], [p_mmstb, r_mmstb], color=['#1A365D', '#C5A880'])
-                ax.set_ylabel('Volumen (MMSTB)', fontweight='bold', color='#1A365D')
-                st.pyplot(fig)
+                mostrar_panel_reservorios(hn, p_mmstb, r_mmstb)
             else:
                 st.error(msg)
