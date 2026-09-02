@@ -3,10 +3,7 @@ import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 
 def aplicar_estilos():
-    """
-    Inyecta CSS global garantizando la jerarquía visual, los tamaños de fuente 
-    acordados y los nuevos efectos avanzados de Neón y Seguimiento de Cursor.
-    """
+    """Inyecta CSS global garantizando jerarquía visual, personalización de navegación y efectos de impacto."""
     css = """
     <style>
         /* --- FONDO PRINCIPAL --- */
@@ -17,7 +14,7 @@ def aplicar_estilos():
         h1 { color: #1A365D !important; font-size: 2.5rem !important; font-weight: bold; text-align: center; }
         h2, h3 { color: #1A365D !important; font-size: 1.75rem !important; text-align: center; margin-bottom: 0.5rem; }
         .metadato-home { color: #64748B !important; font-size: 1rem !important; text-transform: uppercase; text-align: center; display: block; margin-bottom: 2.5rem; }
-        .metadato { color: #64748B !important; font-size: 0.875rem !important; text-transform: uppercase; z-index: 2; position: relative;}
+        .metadato { color: #64748B !important; font-size: 0.875rem !important; text-transform: uppercase; }
         
         /* --- NAVEGACIÓN Y TABS --- */
         [data-testid="stSidebar"] .stRadio label p,
@@ -30,9 +27,8 @@ def aplicar_estilos():
             font-size: 1.5rem !important; font-weight: bold !important; color: #1A365D !important;
         }
         
-        /* --- TARJETAS PERSONALIZADAS CON EFECTO NEÓN Y TRACKING --- */
+        /* --- TARJETAS RESULTADOS (NUEVO EFECTO LIFT & NEON) --- */
         .tarjeta-resultado {
-            position: relative;
             background-color: #FFFFFF; 
             padding: 20px; 
             border-radius: 8px;
@@ -40,42 +36,14 @@ def aplicar_estilos():
             border: 2px solid transparent;
             border-left: 6px solid #C5A880; 
             margin-bottom: 1rem; 
-            overflow: hidden; /* Necesario para contener el brillo interno */
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        
-        /* Contenido de la tarjeta por encima del efecto */
-        .valor-destacado { 
-            font-size: 1.75rem !important; font-weight: bold; color: #1A365D; 
-            margin-top: 5px; z-index: 2; position: relative;
-        }
-        
-        /* Efecto Neón Exterior al pasar el cursor */
         .tarjeta-resultado:hover { 
-            transform: translateY(-3px); 
+            transform: translateY(-5px) scale(1.02); 
             border-color: #C5A880;
-            box-shadow: 0 0 15px rgba(197, 168, 128, 0.4), 0 0 30px rgba(197, 168, 128, 0.2);
+            box-shadow: 0 10px 20px rgba(197, 168, 128, 0.4);
         }
-        
-        /* Efecto de Seguimiento de Cursor (Brillo Interno) */
-        .tarjeta-resultado::before {
-            content: '';
-            position: absolute;
-            top: var(--y, -100px);
-            left: var(--x, -100px);
-            width: 250px;
-            height: 250px;
-            background: radial-gradient(circle closest-side, rgba(197, 168, 128, 0.25), transparent);
-            transform: translate(-50%, -50%);
-            transition: opacity 0.3s ease;
-            opacity: 0;
-            pointer-events: none; /* Evita que el brillo interfiera con el texto */
-            z-index: 1;
-        }
-        
-        .tarjeta-resultado:hover::before {
-            opacity: 1;
-        }
+        .valor-destacado { font-size: 1.75rem !important; font-weight: bold; color: #1A365D; margin-top: 5px; }
         
         /* --- TARJETA INFO HOME --- */
         .tarjeta-info {
@@ -84,15 +52,43 @@ def aplicar_estilos():
             margin: 0 auto; max-width: 850px;
         }
         
-        /* --- BOTONES NATIVOS --- */
-        .stButton>button { background-color: #1A365D; color: #FFFFFF; border: none; border-radius: 5px; width: 100%; transition: all 0.3s ease; }
-        .stButton>button:hover { background-color: #C5A880; color: #1A365D; box-shadow: 0 0 10px rgba(197, 168, 128, 0.5); }
+        /* --- BOTONES NATIVOS (PREPARACIÓN PARA EFECTO RIPPLE JS) --- */
+        .stButton>button { 
+            background-color: #1A365D; 
+            color: #FFFFFF; 
+            border: none; 
+            border-radius: 5px; 
+            width: 100%; 
+            position: relative; /* Clave para contener la onda JS */
+            overflow: hidden;   /* Oculta la onda fuera del botón */
+            transition: background-color 0.3s ease, transform 0.1s ease; 
+        }
+        .stButton>button:hover { background-color: #0F2341; }
+        .stButton>button:active { transform: scale(0.98); }
+        
+        /* Clase CSS inyectada por JS para el efecto Ripple */
+        .efecto-ripple {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            transform: scale(0);
+            animation: animacionRipple 0.6s linear;
+            pointer-events: none; /* Ignora clics sobre la propia onda */
+            width: 150px;
+            height: 150px;
+            margin-top: -75px;
+            margin-left: -75px;
+        }
+        
+        @keyframes animacionRipple {
+            to { transform: scale(4); opacity: 0; }
+        }
     </style>
     """
     st.markdown(css, unsafe_allow_html=True)
 
 def renderizar_tarjeta(titulo, valor, unidad=""):
-    """Renderiza una métrica individual estructurada para soportar los efectos dinámicos."""
+    """Renderiza una métrica individual."""
     html = f"""<div class="tarjeta-resultado">
                 <div class="metadato">{titulo}</div>
                 <div class="valor-destacado">{valor:,.2f} {unidad}</div>
@@ -106,8 +102,8 @@ def renderizar_tarjeta_info(texto):
 
 def inyectar_js_animacion():
     """
-    Inyecta el script JS encargado de las animaciones globales y de calcular
-    las coordenadas X/Y del cursor para el efecto de luz dinámica en las tarjetas.
+    Inyecta el script JS encargado de las animaciones globales y del efecto 
+    Ripple (Onda Expansiva) al hacer clic en los botones de cálculo.
     """
     js = """<script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -121,34 +117,39 @@ def inyectar_js_animacion():
                 setTimeout(() => { container.style.opacity = '1'; }, 50);
             }
             
-            // 2. Lógica para el seguimiento del cursor en las tarjetas
-            function aplicarEfectoTracking() {
-                const tarjetas = doc.querySelectorAll('.tarjeta-resultado');
-                tarjetas.forEach(tarjeta => {
-                    // Evitar duplicar listeners sobrescribiendo el evento onmousemove
-                    tarjeta.onmousemove = function(e) {
-                        const rect = tarjeta.getBoundingClientRect();
+            // 2. Lógica del Efecto Ripple en Botones
+            function aplicarRippleBotones() {
+                const botones = doc.querySelectorAll('.stButton > button');
+                botones.forEach(btn => {
+                    // Evitar listeners duplicados si Streamlit recarga la interfaz
+                    btn.onclick = function(e) {
+                        const rect = btn.getBoundingClientRect();
                         const x = e.clientX - rect.left;
                         const y = e.clientY - rect.top;
                         
-                        // Enviamos las coordenadas a las variables CSS
-                        tarjeta.style.setProperty('--x', x + 'px');
-                        tarjeta.style.setProperty('--y', y + 'px');
+                        const ripple = doc.createElement('span');
+                        ripple.classList.add('efecto-ripple');
+                        ripple.style.left = x + 'px';
+                        ripple.style.top = y + 'px';
+                        
+                        btn.appendChild(ripple);
+                        
+                        // Limpiar el elemento del DOM tras la animación
+                        setTimeout(() => { ripple.remove(); }, 600);
                     };
                 });
             }
             
-            // 3. MutationObserver: Asegura que el efecto se aplique a las tarjetas 
-            // que se generan dinámicamente al cambiar de pestaña en Streamlit
+            // 3. MutationObserver para reaplicar el JS al cambiar de Tab
             const observer = new MutationObserver(() => {
-                aplicarEfectoTracking();
+                aplicarRippleBotones();
             });
             
             const appBody = doc.querySelector('.stApp') || doc.body;
             observer.observe(appBody, { childList: true, subtree: true });
             
-            // Inicialización de seguridad
-            setTimeout(aplicarEfectoTracking, 500);
+            // Ejecución inicial
+            setTimeout(aplicarRippleBotones, 500);
         });
     </script>"""
     components.html(js, height=0)
