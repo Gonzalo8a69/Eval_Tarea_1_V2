@@ -3,16 +3,36 @@ import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 
 def aplicar_estilos():
-    """Inyecta CSS global para tipografía, colores y tarjetas personalizadas."""
+    """Inyecta CSS global para tipografía, colores, tarjetas y personalización de navegación nativa."""
     css = """
     <style>
+        /* --- FONDO PRINCIPAL --- */
         .stApp { background-color: #F3EFE6; }
+        
+        /* --- TIPOGRAFÍA GENERAL Y TÍTULOS --- */
         .texto-principal { font-size: 1.125rem !important; color: #333333; line-height: 1.6; text-align: justify; }
         h1 { color: #1A365D !important; font-size: 2.5rem !important; font-weight: bold; text-align: center; }
         h2, h3 { color: #1A365D !important; font-size: 1.75rem !important; text-align: center; margin-bottom: 0.5rem; }
         .metadato-home { color: #64748B !important; font-size: 1rem !important; text-transform: uppercase; text-align: center; display: block; margin-bottom: 2.5rem; }
         .metadato { color: #64748B !important; font-size: 0.875rem !important; text-transform: uppercase; }
         
+        /* --- MEJORA VISUAL: NAVEGACIÓN Y TABS --- */
+        /* 1. Tamaño de letra para el menú Radio en el Sidebar */
+        [data-testid="stSidebar"] .stRadio label p {
+            font-size: 1.25rem !important; /* ~20px */
+            color: #1A365D !important;
+            padding-top: 5px;
+            padding-bottom: 5px;
+        }
+        
+        /* 2. Tamaño de letra para los Tabs (Producción, Perforación, Reservorios) */
+        button[data-baseweb="tab"] div[data-testid="stMarkdownContainer"] p {
+            font-size: 1.25rem !important; /* ~20px */
+            font-weight: bold !important;
+            color: #1A365D;
+        }
+        
+        /* --- TARJETAS PERSONALIZADAS --- */
         .tarjeta-resultado {
             background-color: #FFFFFF; padding: 20px; border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #C5A880; 
@@ -26,6 +46,8 @@ def aplicar_estilos():
             box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 6px solid #1A365D;
             margin: 0 auto; max-width: 850px;
         }
+        
+        /* --- BOTONES NATIVOS --- */
         .stButton>button { background-color: #1A365D; color: #FFFFFF; border: none; border-radius: 5px; width: 100%; }
         .stButton>button:hover { background-color: #C5A880; color: #1A365D; }
     </style>
@@ -33,7 +55,7 @@ def aplicar_estilos():
     st.markdown(css, unsafe_allow_html=True)
 
 def renderizar_tarjeta(titulo, valor, unidad=""):
-    """Renderiza una métrica individual."""
+    """Renderiza una métrica individual para los resultados."""
     html = f"""<div class="tarjeta-resultado">
                 <div class="metadato">{titulo}</div>
                 <div class="valor-destacado">{valor:,.2f} {unidad}</div>
@@ -41,12 +63,12 @@ def renderizar_tarjeta(titulo, valor, unidad=""):
     st.markdown(html, unsafe_allow_html=True)
 
 def renderizar_tarjeta_info(texto):
-    """Renderiza el bloque descriptivo del Home."""
+    """Renderiza el bloque descriptivo estructurado para el Home."""
     html = f"""<div class="tarjeta-info"><p class="texto-principal">{texto}</p></div>"""
     st.markdown(html, unsafe_allow_html=True)
 
 def inyectar_js_animacion():
-    """Inyecta script JS para efecto visual de entrada."""
+    """Inyecta script JS para el efecto visual de entrada, cumpliendo con la interacción requerida."""
     js = """<script>
         document.addEventListener("DOMContentLoaded", function() {
             const container = document.querySelector('.stApp');
@@ -59,10 +81,10 @@ def inyectar_js_animacion():
     </script>"""
     components.html(js, height=0)
 
-# --- NUEVOS COMPONENTES GRÁFICOS MODULARES ---
+# --- COMPONENTES GRÁFICOS MODULARES ---
 
 def mostrar_panel_ipr(qo, qb, qmax, pwf, q_arr, p_arr):
-    """Construye el panel completo de resultados para Producción."""
+    """Construye el panel completo de resultados y gráficos para Producción."""
     c1, c2, c3 = st.columns(3)
     with c1: renderizar_tarjeta("Caudal Actual", qo, "STB/d")
     with c2: renderizar_tarjeta("Caudal a Burbuja", qb, "STB/d")
@@ -82,7 +104,7 @@ def mostrar_panel_ipr(qo, qb, qmax, pwf, q_arr, p_arr):
         st.pyplot(fig, use_container_width=True)
 
 def mostrar_panel_perforacion(gh, ph, dp, tvd, pform):
-    """Construye el panel completo de resultados para Perforación."""
+    """Construye el panel completo de resultados y gráficos para Perforación."""
     c1, c2, c3 = st.columns(3)
     with c1: renderizar_tarjeta("Gradiente", gh, "psi/ft")
     with c2: renderizar_tarjeta("P. Hidrostática", ph, "psi")
@@ -103,7 +125,7 @@ def mostrar_panel_perforacion(gh, ph, dp, tvd, pform):
         st.pyplot(fig, use_container_width=True)
 
 def mostrar_panel_reservorios(hn, p_mmstb, r_mmstb):
-    """Construye el panel completo de resultados para Reservorios."""
+    """Construye el panel completo de resultados y gráficos para Reservorios."""
     c1, c2, c3 = st.columns(3)
     with c1: renderizar_tarjeta("Espesor Neto", hn, "ft")
     with c2: renderizar_tarjeta("POES", p_mmstb, "MMSTB")
