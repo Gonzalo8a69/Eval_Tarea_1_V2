@@ -3,7 +3,10 @@ import streamlit.components.v1 as components
 import matplotlib.pyplot as plt
 
 def aplicar_estilos():
-    """Inyecta CSS global garantizando que la navegación principal destaque."""
+    """
+    Inyecta CSS global garantizando la jerarquía visual, los tamaños de fuente 
+    acordados y los nuevos efectos avanzados de Neón y Seguimiento de Cursor.
+    """
     css = """
     <style>
         /* --- FONDO PRINCIPAL --- */
@@ -14,37 +17,67 @@ def aplicar_estilos():
         h1 { color: #1A365D !important; font-size: 2.5rem !important; font-weight: bold; text-align: center; }
         h2, h3 { color: #1A365D !important; font-size: 1.75rem !important; text-align: center; margin-bottom: 0.5rem; }
         .metadato-home { color: #64748B !important; font-size: 1rem !important; text-transform: uppercase; text-align: center; display: block; margin-bottom: 2.5rem; }
-        .metadato { color: #64748B !important; font-size: 0.875rem !important; text-transform: uppercase; }
+        .metadato { color: #64748B !important; font-size: 0.875rem !important; text-transform: uppercase; z-index: 2; position: relative;}
         
-        /* --- REFUERZO VISUAL: NAVEGACIÓN Y TABS --- */
-        /* 1. Sidebar (Home y Ejercicios) - Forzando tamaño en todas las capas */
+        /* --- NAVEGACIÓN Y TABS --- */
         [data-testid="stSidebar"] .stRadio label p,
         [data-testid="stSidebar"] .stRadio label div {
-            font-size: 1.5rem !important; /* ~24px */
-            font-weight: 600 !important;
-            color: #1A365D !important;
-            padding-top: 8px;
-            padding-bottom: 8px;
+            font-size: 1.5rem !important; font-weight: 600 !important; color: #1A365D !important; padding: 8px 0;
         }
-        
-        /* 2. Tabs (Producción, Perforación, Reservorios) - Selectores profundos */
         [data-testid="stTabs"] button[data-baseweb="tab"] p,
         [data-testid="stTabs"] button[data-baseweb="tab"] div,
         [data-testid="stTabs"] button[data-baseweb="tab"] span {
-            font-size: 1.5rem !important; /* ~24px */
-            font-weight: bold !important;
-            color: #1A365D !important;
+            font-size: 1.5rem !important; font-weight: bold !important; color: #1A365D !important;
         }
         
-        /* --- TARJETAS PERSONALIZADAS --- */
+        /* --- TARJETAS PERSONALIZADAS CON EFECTO NEÓN Y TRACKING --- */
         .tarjeta-resultado {
-            background-color: #FFFFFF; padding: 20px; border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05); border-left: 6px solid #C5A880; 
-            margin-bottom: 1rem; transition: transform 0.2s ease;
+            position: relative;
+            background-color: #FFFFFF; 
+            padding: 20px; 
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05); 
+            border: 2px solid transparent;
+            border-left: 6px solid #C5A880; 
+            margin-bottom: 1rem; 
+            overflow: hidden; /* Necesario para contener el brillo interno */
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
-        .tarjeta-resultado:hover { transform: translateY(-3px); }
-        .valor-destacado { font-size: 1.75rem !important; font-weight: bold; color: #1A365D; margin-top: 5px; }
         
+        /* Contenido de la tarjeta por encima del efecto */
+        .valor-destacado { 
+            font-size: 1.75rem !important; font-weight: bold; color: #1A365D; 
+            margin-top: 5px; z-index: 2; position: relative;
+        }
+        
+        /* Efecto Neón Exterior al pasar el cursor */
+        .tarjeta-resultado:hover { 
+            transform: translateY(-3px); 
+            border-color: #C5A880;
+            box-shadow: 0 0 15px rgba(197, 168, 128, 0.4), 0 0 30px rgba(197, 168, 128, 0.2);
+        }
+        
+        /* Efecto de Seguimiento de Cursor (Brillo Interno) */
+        .tarjeta-resultado::before {
+            content: '';
+            position: absolute;
+            top: var(--y, -100px);
+            left: var(--x, -100px);
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle closest-side, rgba(197, 168, 128, 0.25), transparent);
+            transform: translate(-50%, -50%);
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            pointer-events: none; /* Evita que el brillo interfiera con el texto */
+            z-index: 1;
+        }
+        
+        .tarjeta-resultado:hover::before {
+            opacity: 1;
+        }
+        
+        /* --- TARJETA INFO HOME --- */
         .tarjeta-info {
             background-color: #FFFFFF; padding: 35px; border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08); border-top: 6px solid #1A365D;
@@ -52,14 +85,14 @@ def aplicar_estilos():
         }
         
         /* --- BOTONES NATIVOS --- */
-        .stButton>button { background-color: #1A365D; color: #FFFFFF; border: none; border-radius: 5px; width: 100%; }
-        .stButton>button:hover { background-color: #C5A880; color: #1A365D; }
+        .stButton>button { background-color: #1A365D; color: #FFFFFF; border: none; border-radius: 5px; width: 100%; transition: all 0.3s ease; }
+        .stButton>button:hover { background-color: #C5A880; color: #1A365D; box-shadow: 0 0 10px rgba(197, 168, 128, 0.5); }
     </style>
     """
     st.markdown(css, unsafe_allow_html=True)
 
 def renderizar_tarjeta(titulo, valor, unidad=""):
-    """Renderiza una métrica individual para los resultados."""
+    """Renderiza una métrica individual estructurada para soportar los efectos dinámicos."""
     html = f"""<div class="tarjeta-resultado">
                 <div class="metadato">{titulo}</div>
                 <div class="valor-destacado">{valor:,.2f} {unidad}</div>
@@ -72,15 +105,50 @@ def renderizar_tarjeta_info(texto):
     st.markdown(html, unsafe_allow_html=True)
 
 def inyectar_js_animacion():
-    """Inyecta script JS para el efecto visual de entrada."""
+    """
+    Inyecta el script JS encargado de las animaciones globales y de calcular
+    las coordenadas X/Y del cursor para el efecto de luz dinámica en las tarjetas.
+    """
     js = """<script>
         document.addEventListener("DOMContentLoaded", function() {
-            const container = document.querySelector('.stApp');
+            const doc = window.parent.document;
+            
+            // 1. Animación de entrada general (Fade In)
+            const container = doc.querySelector('.stApp');
             if(container) {
                 container.style.opacity = '0';
                 container.style.transition = 'opacity 0.8s ease-in';
                 setTimeout(() => { container.style.opacity = '1'; }, 50);
             }
+            
+            // 2. Lógica para el seguimiento del cursor en las tarjetas
+            function aplicarEfectoTracking() {
+                const tarjetas = doc.querySelectorAll('.tarjeta-resultado');
+                tarjetas.forEach(tarjeta => {
+                    // Evitar duplicar listeners sobrescribiendo el evento onmousemove
+                    tarjeta.onmousemove = function(e) {
+                        const rect = tarjeta.getBoundingClientRect();
+                        const x = e.clientX - rect.left;
+                        const y = e.clientY - rect.top;
+                        
+                        // Enviamos las coordenadas a las variables CSS
+                        tarjeta.style.setProperty('--x', x + 'px');
+                        tarjeta.style.setProperty('--y', y + 'px');
+                    };
+                });
+            }
+            
+            // 3. MutationObserver: Asegura que el efecto se aplique a las tarjetas 
+            // que se generan dinámicamente al cambiar de pestaña en Streamlit
+            const observer = new MutationObserver(() => {
+                aplicarEfectoTracking();
+            });
+            
+            const appBody = doc.querySelector('.stApp') || doc.body;
+            observer.observe(appBody, { childList: true, subtree: true });
+            
+            // Inicialización de seguridad
+            setTimeout(aplicarEfectoTracking, 500);
         });
     </script>"""
     components.html(js, height=0)
